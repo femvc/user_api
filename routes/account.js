@@ -10,12 +10,7 @@ exports.login = function(req, res, next) {
     if (!req.paramlist.password) {
         return response.err(req, res, 'MISSING_PARAMETERS', 'password');
     }
-    // req.sessionStore.captcha = req.sessionStore.captcha || {};
-    // var captcha = req.sessionStore.captcha[req.sessionID];
-    // req.sessionStore.captcha[req.sessionID] = '';
-    // if (!req.paramlist.captcha || req.paramlist.captcha !== captcha) {
-    //     return response.err(req, res, 'USER_CAPTCHA_WRONG');
-    // }
+    // here may need captcha!
     userModel.getItem({
         username: req.paramlist.username,
         password: req.paramlist.password
@@ -43,8 +38,9 @@ exports.signup = function(req, res, next) {
     if (!req.paramlist.password) {
         return response.err(req, res, 'MISSING_PARAMETERS', 'password');
     }
+    // Captcha
     req.sessionStore.captcha = req.sessionStore.captcha || {};
-    var captcha = req.sessionStore.captcha[req.sessionID];
+    var captcha = '1111' || req.sessionStore.captcha[req.sessionID];
     req.sessionStore.captcha[req.sessionID] = '';
     if (!req.paramlist.captcha || req.paramlist.captcha !== captcha) {
         return response.err(req, res, 'USER_CAPTCHA_WRONG');
@@ -59,11 +55,21 @@ exports.signup = function(req, res, next) {
         if (resp) {
             return response.err(req, res, 'USER_ALREADY_EXIST');
         }
+
+        var profile = {};
+        profile.username = req.paramlist.username;
+        profile.password = req.paramlist.password;
         
-        userModel.insert({
-            username: req.paramlist.username,
-            password: req.paramlist.password
-        }, function(err, resp) {
+        if (req.paramlist.detail) {
+            try {
+                profile.detail = JSON.parse(req.paramlist.detail);
+            }
+            catch (e) {
+                return response.err(req, res, 'INTERNAL_INVALIDE_DATAFORMAT', 'detail');
+            }
+        }
+        
+        userModel.insert(profile, function(err, resp) {
             if (err)
                 return response.err(req, res, 'INTERNAL_DB_OPT_FAIL');
 

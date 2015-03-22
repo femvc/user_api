@@ -26,8 +26,6 @@ app.get('/captcha.png', function (req, res) {
     var num = parseInt(Math.random() * 9000 + 1000);
     req.sessionStore.captcha = req.sessionStore.captcha || {};
     req.sessionStore.captcha[req.sessionID] = String(num);
-    console.log('>>>>>>>>>>>>>>>>>>>>>>');
-    console.log(num);
 
     var p = new Captchapng(80, 30, num); // width,height,numeric captcha 
     p.color(0, 0, 0, 0); // First color: background (red, green, blue, alpha) 
